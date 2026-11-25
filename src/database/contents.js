@@ -85,24 +85,27 @@ export async function upsertContents(rawRecords) {
     if (existing) {
       updated += 1;
       const merged = mergeContentRecords(existing, item);
-      // Avoid slug conflict when two different URLs share a slug
-      merged.id = existing.id;
+      // Match existing row via onConflict: detail_source_url without sending `id` in mixed batches
+      merged.detail_source_url = existing.detail_source_url;
       merged.is_featured = Boolean(merged.is_featured);
       merged.is_popular = Boolean(merged.is_popular);
       merged.is_recommended = Boolean(merged.is_recommended);
       merged.scraped_at = now;
+      delete merged.id;
       delete merged.created_at;
       delete merged.updated_at;
       payload.push(merged);
     } else {
       inserted += 1;
-      payload.push({
+      const next = {
         ...item,
         is_featured: Boolean(item.is_featured),
         is_popular: Boolean(item.is_popular),
         is_recommended: Boolean(item.is_recommended),
         scraped_at: now,
-      });
+      };
+      delete next.id;
+      payload.push(next);
     }
   }
 
