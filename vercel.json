@@ -2,16 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "functions": {
-    "api/v1/**/*.js": {
-      "maxDuration": 30
-    },
-    "api/v1/cron/*.js": {
-      "maxDuration": 60
-    },
-    "api/v1/admin/*.js": {
+    "api/index.js": {
       "maxDuration": 60
     }
   },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/", "destination": "/api/index" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -25,15 +23,11 @@
   "crons": [
     {
       "path": "/api/v1/cron/quick-sync",
-      "schedule": "*/45 * * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/v1/cron/detail-sync",
-      "schedule": "0 */2 * * *"
-    },
-    {
-      "path": "/api/v1/cron/episode-sync",
-      "schedule": "30 */4 * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
