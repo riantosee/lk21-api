@@ -87,6 +87,9 @@ export async function upsertContents(rawRecords) {
       const merged = mergeContentRecords(existing, item);
       // Avoid slug conflict when two different URLs share a slug
       merged.id = existing.id;
+      merged.is_featured = Boolean(merged.is_featured);
+      merged.is_popular = Boolean(merged.is_popular);
+      merged.is_recommended = Boolean(merged.is_recommended);
       merged.scraped_at = now;
       delete merged.created_at;
       delete merged.updated_at;
@@ -95,6 +98,9 @@ export async function upsertContents(rawRecords) {
       inserted += 1;
       payload.push({
         ...item,
+        is_featured: Boolean(item.is_featured),
+        is_popular: Boolean(item.is_popular),
+        is_recommended: Boolean(item.is_recommended),
         scraped_at: now,
       });
     }
