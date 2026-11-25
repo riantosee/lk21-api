@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import WebSocket from 'ws';
 import { config, isSupabaseConfigured } from '../config/index.js';
 
 let clientInstance = null;
@@ -17,8 +18,10 @@ export function getDb() {
   if (!isSupabaseConfigured()) {
     throw new DatabaseUnavailableError('Supabase credentials (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) are not configured');
   }
+  const realtime = typeof globalThis.WebSocket === 'undefined' ? { transport: WebSocket } : undefined;
   clientInstance = createClient(config.supabase.url, config.supabase.serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    ...(realtime ? { realtime } : {}),
   });
   return clientInstance;
 }
@@ -35,9 +38,9 @@ export async function checkDatabaseHealth() {
   const started = Date.now();
   try {
     const db = getDb();
-    const { error } = await db.from('contents').select('id', { head: true, count: 'exact' }).limit(1);
+    const { error, statusText } = await db.from('contents').select('id').limit(1);
     if (error) {
-      return { status: 'error', healthy: false, latencyMs: Date.now() - started, message: error.message };
+      return { status: 'error', healthy: false, latencyMs: Date.now() - started, message: error.message || statusText || 'Database query failed' };
     }
     return { status: 'connected', healthy: true, latencyMs: Date.now() - started };
   } catch (err) {
