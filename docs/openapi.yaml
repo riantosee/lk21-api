@@ -1,0 +1,291 @@
+openapi: 3.1.0
+info:
+  title: NontonDrama API
+  version: 1.0.0
+  description: Metadata REST API platform backed by Supabase PostgreSQL and Upstash Redis. Scrape once, store permanently, serve efficiently.
+servers:
+  - url: https://your-deployment.vercel.app
+    description: Production Vercel deployment
+  - url: http://localhost:3000
+    description: Local Vercel dev server
+components:
+  securitySchemes:
+    AdminBearerAuth:
+      type: http
+      scheme: bearer
+      description: Set to `ADMIN_API_SECRET`. Alternatively pass `X-Admin-Secret` header.
+    CronBearerAuth:
+      type: http
+      scheme: bearer
+      description: Set to `CRON_SECRET` (automatically sent by Vercel Cron).
+  schemas:
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        totalPages: { type: integer }
+        hasNextPage: { type: boolean }
+        hasPreviousPage: { type: boolean }
+    Meta:
+      type: object
+      properties:
+        source: { type: string, example: nontondrama }
+        cached: { type: boolean }
+        timestamp: { type: string, format: date-time }
+    ErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean, const: false }
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: array, items: { type: object } }
+    ContentSummary:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        source_id: { type: [string, "null"] }
+        source_slug: { type: string }
+        title: { type: string }
+        original_title: { type: [string, "null"] }
+        slug: { type: string }
+        content_type: { type: string, enum: [movie, series] }
+        poster_url: { type: [string, "null"] }
+        backdrop_url: { type: [string, "null"] }
+        release_year: { type: [integer, "null"] }
+        release_date: { type: [string, "null"] }
+        rating: { type: [number, "null"] }
+        duration: { type: [string, "null"] }
+        quality: { type: [string, "null"] }
+        status: { type: [string, "null"] }
+        region: { type: [string, "null"] }
+        country: { type: [string, "null"] }
+        genres: { type: array, items: { type: string } }
+        total_seasons: { type: [integer, "null"] }
+        total_episodes: { type: [integer, "null"] }
+        detail_source_url: { type: string, format: uri }
+paths:
+  /api/v1/home:
+    get:
+      summary: Homepage curated catalog sections
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 12, maximum: 24 }
+      responses:
+        '200': { description: Homepage sections (featured, latest_movies, latest_series, popular, recommendations, ongoing, completed) }
+  /api/v1/latest:
+    get:
+      summary: Latest scraped movies and series
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+        - { name: type, in: query, schema: { type: string, enum: [movie, series] } }
+      responses:
+        '200': { description: Paginated latest content list }
+  /api/v1/movies:
+    get:
+      summary: Filtered movie catalog
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: year, in: query, schema: { type: integer } }
+        - { name: genre, in: query, schema: { type: string } }
+        - { name: country, in: query, schema: { type: string } }
+        - { name: sort, in: query, schema: { type: string, enum: [latest, rating, year, title, updated], default: latest } }
+        - { name: order, in: query, schema: { type: string, enum: [asc, desc], default: desc } }
+      responses:
+        '200': { description: Paginated movie catalog }
+  /api/v1/series:
+    get:
+      summary: Filtered series catalog
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: year, in: query, schema: { type: integer } }
+        - { name: genre, in: query, schema: { type: string } }
+        - { name: country, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string, enum: [ongoing, completed] } }
+        - { name: sort, in: query, schema: { type: string, enum: [latest, rating, year, title, updated], default: latest } }
+        - { name: order, in: query, schema: { type: string, enum: [asc, desc], default: desc } }
+      responses:
+        '200': { description: Paginated series catalog }
+  /api/v1/popular:
+    get:
+      summary: Popular movies and series
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: type, in: query, schema: { type: string, enum: [movie, series] } }
+      responses:
+        '200': { description: Paginated popular list }
+  /api/v1/recommendations:
+    get:
+      summary: Recommended movies and series
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+      responses:
+        '200': { description: Paginated recommended list }
+  /api/v1/ongoing:
+    get:
+      summary: Ongoing series
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: genre, in: query, schema: { type: string } }
+        - { name: country, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Paginated ongoing series }
+  /api/v1/completed:
+    get:
+      summary: Completed series
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: genre, in: query, schema: { type: string } }
+        - { name: country, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Paginated completed series }
+  /api/v1/genres:
+    get:
+      summary: List all genres
+      responses:
+        '200': { description: Genre list }
+  /api/v1/genres/{slug}:
+    get:
+      summary: List content in a genre
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Paginated contents matching genre }
+  /api/v1/countries:
+    get:
+      summary: List all countries
+      responses:
+        '200': { description: Country list }
+  /api/v1/countries/{slug}:
+    get:
+      summary: List content from a country
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Paginated contents matching country }
+  /api/v1/years:
+    get:
+      summary: List release years with item counts
+      responses:
+        '200': { description: Release year list }
+  /api/v1/years/{year}:
+    get:
+      summary: List content released in a specific year
+      parameters:
+        - { name: year, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Paginated contents for year }
+  /api/v1/search:
+    get:
+      summary: Case-insensitive partial search
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: type, in: query, schema: { type: string, enum: [movie, series] } }
+        - { name: year, in: query, schema: { type: integer } }
+        - { name: genre, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Matching content records }
+        '400': { description: Validation error when q is missing }
+  /api/v1/detail/{slug}:
+    get:
+      summary: Full content detail with related titles and seasons
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Content metadata detail }
+        '404': { description: Content not found }
+  /api/v1/seasons/{slug}:
+    get:
+      summary: Seasons available for a series
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Season list }
+        '404': { description: Content not found }
+  /api/v1/episodes/{slug}:
+    get:
+      summary: Paginated episodes for a series (metadata & canonical source URLs only)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { name: season, in: query, schema: { type: integer } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+      responses:
+        '200': { description: Paginated episode metadata }
+        '404': { description: Content not found }
+  /api/v1/health:
+    get:
+      summary: API, database, cache, and synchronization health status
+      responses:
+        '200': { description: Healthy }
+        '503': { description: Database unavailable }
+  /api/v1/admin/sync:
+    post:
+      summary: Trigger bounded synchronization job (quick, full, detail, episode)
+      security: [{ AdminBearerAuth: [] }]
+      responses:
+        '200': { description: Sync execution summary }
+        '401': { description: Missing credentials }
+        '403': { description: Invalid credentials }
+  /api/v1/admin/status:
+    get:
+      summary: Check crawler paused flag, active jobs, failed count, and recent syncs
+      security: [{ AdminBearerAuth: [] }]
+      responses:
+        '200': { description: Scraper operational status }
+  /api/v1/admin/jobs:
+    get:
+      summary: Inspect scraper job progress or list failed jobs
+      security: [{ AdminBearerAuth: [] }]
+      responses:
+        '200': { description: Job list or single job }
+  /api/v1/admin/jobs/retry:
+    post:
+      summary: Retry failed scraper jobs
+      security: [{ AdminBearerAuth: [] }]
+      responses:
+        '200': { description: Retry results }
+  /api/v1/admin/control:
+    post:
+      summary: Pause or resume crawling (`{"action": "pause" | "resume"}`)
+      security: [{ AdminBearerAuth: [] }]
+      responses:
+        '200': { description: Updated crawler control state }
+  /api/v1/admin/history:
+    get:
+      summary: View synchronization history logs
+      security: [{ AdminBearerAuth: [] }]
+      responses:
+        '200': { description: Sync logs }
+  /api/v1/cron/quick-sync:
+    get:
+      summary: Scheduled quick sync trigger
+      security: [{ CronBearerAuth: [] }]
+      responses:
+        '200': { description: Quick sync summary }
+  /api/v1/cron/detail-sync:
+    get:
+      summary: Scheduled detail batch enrichment trigger
+      security: [{ CronBearerAuth: [] }]
+      responses:
+        '200': { description: Detail batch summary }
+  /api/v1/cron/episode-sync:
+    get:
+      summary: Scheduled series season/episode refresh trigger
+      security: [{ CronBearerAuth: [] }]
+      responses:
+        '200': { description: Episode sync summary }

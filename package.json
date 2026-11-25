@@ -1,0 +1,29 @@
+{
+  "name": "nontondrama-api",
+  "version": "1.0.0",
+  "description": "Full-scale web scraping & metadata REST API platform for NontonDrama / LK21",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "discover": "node scripts/discover.js",
+    "sync:quick": "node scripts/quick-sync.js",
+    "sync:full": "node scripts/full-sync.js",
+    "sync:retry": "node scripts/retry-failed.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.0",
+    "@upstash/redis": "^1.36.0",
+    "axios": "^1.13.0",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.3.0",
+    "pino": "^10.3.0",
+    "zod": "^4.3.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
+  }
+}
