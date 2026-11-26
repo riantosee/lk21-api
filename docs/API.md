@@ -61,6 +61,9 @@ Full OpenAPI 3.1 contract: [openapi.yaml](./openapi.yaml)
 | GET | `/api/v1/seasons/:slug` | — | 1 h |
 | GET | `/api/v1/episodes/:slug` | `season`, `page`, `limit` | 1 h |
 | GET | `/api/v1/health` | — | uncached |
+| GET | `/api/v1/openapi.yaml` | — | 1 h (CDN) |
+
+> **Edge CDN Caching:** Semua endpoint GET publik mengembalikan `Cache-Control: public, s-maxage=120, stale-while-revalidate=300` agar beban komunitas ditangani cepat oleh Vercel Edge Network.
 
 ## Admin Endpoints (Protected)
 

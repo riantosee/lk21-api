@@ -133,15 +133,24 @@ export async function listContents(filters = {}) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  const sortCol = SORT_COLUMN_MAP[filters.sort] || 'scraped_at';
+  const sortKey = filters.sort || 'latest';
   const ascending = filters.order === 'asc';
 
   let query = db.from('contents').select(CONTENT_SUMMARY_COLUMNS, { count: 'exact' });
   query = applyCommonFilters(query, filters);
-  query = query
-    .order(sortCol, { ascending, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .range(from, to);
+  if (sortKey === 'latest') {
+    query = query
+      .order('release_year', { ascending: false, nullsFirst: false })
+      .order('scraped_at', { ascending: false, nullsFirst: false })
+      .order('rating', { ascending: false, nullsFirst: false })
+      .range(from, to);
+  } else {
+    const sortCol = SORT_COLUMN_MAP[sortKey] || 'scraped_at';
+    query = query
+      .order(sortCol, { ascending, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+  }
 
   const { data, count, error } = await query;
   if (error) throw new Error(`Failed to list contents: ${error.message}`);

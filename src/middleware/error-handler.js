@@ -38,6 +38,9 @@ export function createApiHandler(options, handler) {
         verifyAdminAuth(req);
       } else if (opts.auth === 'cron') {
         verifyCronAuth(req);
+      } else if (method === 'GET' && opts.cacheControl !== false) {
+        // Community-friendly CDN caching on public read-only endpoints
+        res.setHeader?.('Cache-Control', opts.cacheControl || 'public, s-maxage=120, stale-while-revalidate=300');
       }
 
       await fn(req, res);

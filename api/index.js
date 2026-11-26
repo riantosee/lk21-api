@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import homeHandler from '../src/routes/v1/home.js';
 import latestHandler from '../src/routes/v1/latest.js';
 import moviesHandler from '../src/routes/v1/movies.js';
@@ -84,11 +87,21 @@ export default async function handler(req, res) {
 
   const { pathname, searchParams } = extractPathname(req);
 
+  if (pathname === '/api/v1/openapi' || pathname === '/api/v1/openapi.yaml') {
+    const specPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../docs/openapi.yaml');
+    const yaml = fs.readFileSync(specPath, 'utf8');
+    res.setHeader?.('Content-Type', 'application/yaml; charset=utf-8');
+    res.setHeader?.('Cache-Control', 'public, s-maxage=3600');
+    res.status(200).end?.(yaml);
+    return;
+  }
+
   if (pathname === '/' || pathname === '/api' || pathname === '/api/v1') {
     return sendSuccess(res, {
-      name: 'NontonDrama API',
+      name: 'NontonDrama / LK21 Public Metadata API',
       version: '1.0.0',
-      docs: '/api/v1/health',
+      docs: '/api/v1/openapi.yaml',
+      health: '/api/v1/health',
       endpoints: [
         '/api/v1/home',
         '/api/v1/latest',

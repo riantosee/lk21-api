@@ -8,3 +8,6 @@ dist/
 *.log
 _robots.txt
 _home.html
+
+.vercel
+.env*

@@ -3,293 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NONTONDRAMA — Streaming Drama & Film Sub Indo</title>
-  <meta name="description" content="Tonton drama Korea, China, Jepang, series barat, dan film terbaru tanpa login." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css" />
+  <title>LK21 / NontonDrama Public Metadata API — Community Docs</title>
+  <style>
+    :root { --bg:#09090c; --card:#13131a; --border:rgba(255,255,255,.09); --red:#e50914; --text:#f4f4f8; --muted:#9ea0ae; --green:#22c55e; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--text); font-family:Inter,system-ui,-apple-system,sans-serif; line-height:1.6; }
+    .wrap { max-width:1040px; margin:0 auto; padding:42px 20px 72px; }
+    .badge { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.08em; padding:4px 10px; border-radius:999px; background:rgba(229,9,20,.18); color:#ff6b72; border:1px solid rgba(229,9,20,.4); margin-bottom:14px; }
+    h1 { font-size:clamp(1.9rem,4vw,2.7rem); margin-bottom:10px; }
+    .lead { color:var(--muted); max-width:720px; margin-bottom:26px; }
+    .cta-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:36px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; font-size:14px; font-weight:600; text-decoration:none; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
+    .btn-primary { background:var(--red); border-color:var(--red); color:#fff; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:14px; margin-bottom:30px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; }
+    .ep { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+    .method { font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; background:rgba(34,197,94,.16); color:var(--green); }
+    code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:13px; color:#e5e7eb; }
+    .desc { font-size:13px; color:var(--muted); margin-bottom:12px; }
+    .try-btn { font-size:12px; font-weight:600; padding:6px 12px; border-radius:8px; background:#1c1c26; color:#fff; border:1px solid var(--border); cursor:pointer; }
+    .try-btn:hover { background:var(--red); border-color:var(--red); }
+    pre { background:#0d0d12; border:1px solid var(--border); border-radius:12px; padding:16px; overflow:auto; max-height:380px; font-size:12.5px; color:#d1d5db; margin-top:12px; }
+    .section-title { font-size:1.15rem; margin:28px 0 12px; }
+    footer { margin-top:44px; padding-top:20px; border-top:1px solid var(--border); font-size:13px; color:var(--muted); }
+  </style>
 </head>
 <body>
-  <!-- Atmospheric red edge glow -->
-  <div class="ambient-glow ambient-glow-left" aria-hidden="true"></div>
-  <div class="ambient-glow ambient-glow-right" aria-hidden="true"></div>
+  <div class="wrap">
+    <span class="badge">FREE PUBLIC METADATA REST API v1</span>
+    <h1>NontonDrama / LK21 Metadata API</h1>
+    <p class="lead">REST API gratis berbasis PostgreSQL &amp; CDN Cache untuk katalog metadata film, drama Asia/Barat, genre, negara, tahun rilis, season, dan daftar episode. Tanpa API key untuk semua endpoint publik.</p>
 
-  <!-- Top Navigation (No Login Required) -->
-  <header class="navbar" id="navbar">
-    <div class="nav-inner">
-      <a href="#top" class="brand" id="brandLogo">NONTONDRAMA</a>
-
-      <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
-        <a href="#hero" class="nav-link active" data-nav="home">Home</a>
-        <a href="#trends" class="nav-link" data-nav="trends">Trends</a>
-        <a href="#catalog" class="nav-link" data-nav="series">Drama</a>
-        <a href="#catalog" class="nav-link" data-nav="movies">Movie</a>
-        <a href="#mylist" class="nav-link" data-nav="mylist">My List <span class="nav-badge" id="myListCount">0</span></a>
-      </nav>
-
-      <div class="nav-actions">
-        <div class="nav-search" id="navSearchBox">
-          <button type="button" class="icon-btn" id="navSearchToggle" aria-label="Cari film atau drama">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          </button>
-          <input type="search" id="navSearchInput" placeholder="Cari judul drama atau film..." autocomplete="off" />
-        </div>
-        <button type="button" class="hamburger" id="mobileMenuBtn" aria-label="Buka menu">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/api/v1/health" target="_blank">Cek API Health</a>
+      <a class="btn" href="/api/v1/openapi.yaml" target="_blank">OpenAPI 3.1 Spec</a>
+      <a class="btn" href="https://github.com/riantosee/lk21-api" target="_blank" rel="noopener">GitHub Documentation</a>
     </div>
-  </header>
 
-  <main id="top">
-    <!-- Hero Featured Carousel -->
-    <section class="hero" id="hero" aria-label="Featured Showcase">
-      <div class="hero-backdrop" id="heroBackdrop"></div>
-      <div class="hero-vignette"></div>
-
-      <div class="hero-content" id="heroContent">
-        <p class="hero-kicker" id="heroKicker">MEMUAT KATALOG...</p>
-        <div class="hero-meta" id="heroMeta"></div>
-        <h1 class="hero-title" id="heroTitle">NONTONDRAMA</h1>
-        <p class="hero-synopsis" id="heroSynopsis">Menyiapkan drama dan film terbaru untukmu. Tanpa login, langsung tonton.</p>
-        <div class="hero-actions">
-          <button type="button" class="btn-watch" id="heroWatchBtn">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            <span>WATCH</span>
-          </button>
-          <button type="button" class="btn-addlist" id="heroListBtn">
-            <span class="btn-plus">+</span>
-            <span>ADD LIST</span>
-          </button>
-        </div>
+    <h2 class="section-title">Interactive Playground</h2>
+    <div class="card">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="reqPath" value="/api/v1/home?limit=4" style="flex:1;min-width:220px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:#0d0d12;color:#fff;font-family:monospace" />
+        <button class="btn btn-primary" id="runBtn">Send GET Request</button>
       </div>
-
-      <div class="hero-indicators" id="heroIndicators" role="tablist" aria-label="Pilih slide unggulan"></div>
-    </section>
-
-    <!-- Continue Watching / My List Shelf (Shown when user saves or watches items) -->
-    <section class="section container hidden" id="mylist">
-      <div class="section-bar">
-        <div class="tab-group">
-          <button type="button" class="section-tab active" data-personal-tab="list">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-            <span>My List</span>
-          </button>
-          <button type="button" class="section-tab" data-personal-tab="history">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Terakhir Ditonton</span>
-          </button>
-        </div>
-      </div>
-      <div class="carousel-wrap">
-        <button type="button" class="carousel-arrow left" data-scroll-target="personalRow" data-dir="-1" aria-label="Geser kiri">‹</button>
-        <div class="poster-row" id="personalRow"></div>
-        <button type="button" class="carousel-arrow right" data-scroll-target="personalRow" data-dir="1" aria-label="Geser kanan">›</button>
-      </div>
-    </section>
-
-    <!-- Section 1: Trends Now / Popular / Recommended / Recently Added -->
-    <section class="section container" id="trends">
-      <div class="section-bar">
-        <div class="tab-group" id="trendsTabs">
-          <button type="button" class="section-tab active" data-trend-tab="featured">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            <span>Trends Now</span>
-          </button>
-          <button type="button" class="section-tab" data-trend-tab="popular">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c.5 3.5-2 5.5-2 8.5a4 4 0 0 0 8 0c0-3-2-5-2-8.5 2.5 1.5 5 5 5 9a9 9 0 1 1-18 0c0-4 2.5-7.5 5-9 0 2 1 3 1 3"/></svg>
-            <span>Popular</span>
-          </button>
-          <button type="button" class="section-tab" data-trend-tab="recommendations">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span>Recommended</span>
-          </button>
-          <button type="button" class="section-tab" data-trend-tab="latest_series">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Recently Added</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Genre Pills -->
-      <div class="genre-strip-wrap">
-        <div class="genre-strip" id="trendsGenres"></div>
-      </div>
-
-      <!-- Horizontal Poster Carousel -->
-      <div class="carousel-wrap">
-        <button type="button" class="carousel-arrow left" data-scroll-target="trendsRow" data-dir="-1" aria-label="Geser kiri">‹</button>
-        <div class="poster-row" id="trendsRow">
-          <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
-        </div>
-        <button type="button" class="carousel-arrow right" data-scroll-target="trendsRow" data-dir="1" aria-label="Geser kanan">›</button>
-      </div>
-    </section>
-
-    <!-- Section 2: Full Catalog Explorer (Movies / Series / Ongoing / Completed / Search) -->
-    <section class="section container" id="catalog">
-      <div class="section-bar">
-        <div class="tab-group" id="catalogTabs">
-          <button type="button" class="section-tab active" data-catalog-tab="movies">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20M7 4v6M12 4v6M17 4v6"/></svg>
-            <span>Movies</span>
-          </button>
-          <button type="button" class="section-tab" data-catalog-tab="series">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
-            <span>Series</span>
-          </button>
-          <button type="button" class="section-tab" data-catalog-tab="ongoing">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Ongoing</span>
-          </button>
-          <button type="button" class="section-tab" data-catalog-tab="completed">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>Completed</span>
-          </button>
-          <button type="button" class="section-tab" data-catalog-tab="search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <span>Search</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Inline Search Bar (shown on Search tab or when searching) -->
-      <div class="inline-search hidden" id="inlineSearchBar">
-        <input type="search" id="catalogSearchInput" placeholder="Ketik judul film atau drama (contoh: Empress, Love, Fjord)..." autocomplete="off" />
-        <button type="button" class="btn-clear-search" id="clearSearchBtn">Reset</button>
-      </div>
-
-      <!-- Catalog Genre Pills -->
-      <div class="genre-strip-wrap">
-        <div class="genre-strip" id="catalogGenres"></div>
-      </div>
-
-      <!-- Sort + Year + Rating Slider Bar (Netflix Reference Style) -->
-      <div class="controls-bar">
-        <div class="sort-controls">
-          <span class="sort-label">Sort by:</span>
-          <button type="button" class="sort-pill active" data-sort="latest">Latest</button>
-          <button type="button" class="sort-pill" data-sort="rating">Top Rated</button>
-          <select class="filter-select" id="yearFilter" aria-label="Filter Tahun">
-            <option value="">Year</option>
-          </select>
-          <select class="filter-select" id="countryFilter" aria-label="Filter Negara">
-            <option value="">Country</option>
-          </select>
-          <button type="button" class="sort-pill" data-sort="title">A-Z</button>
-        </div>
-
-        <div class="rating-slider-wrap" title="Filter rating minimal">
-          <span class="star-gold">★</span>
-          <input type="range" id="ratingFilter" min="0" max="9.5" step="0.5" value="0" aria-label="Minimal rating" />
-          <span class="rating-value" id="ratingFilterValue">All</span>
-        </div>
-      </div>
-
-      <!-- Results Grid -->
-      <div class="poster-grid" id="catalogGrid">
-        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination-bar" id="catalogPagination">
-        <button type="button" class="page-btn" id="prevPageBtn" disabled>‹ Sebelumnya</button>
-        <span class="page-info" id="pageInfo">Halaman 1</span>
-        <button type="button" class="page-btn" id="nextPageBtn" disabled>Berikutnya ›</button>
-      </div>
-    </section>
-  </main>
-
-  <!-- Cinematic Detail & Watch Modal -->
-  <div class="modal-overlay hidden" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-sheet">
-      <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Tutup">✕</button>
-      <div class="modal-hero" id="modalHero">
-        <div class="modal-hero-vignette"></div>
-        <div class="modal-hero-body">
-          <img class="modal-poster" id="modalPoster" src="" alt="" />
-          <div class="modal-info">
-            <p class="modal-kicker" id="modalKicker"></p>
-            <h2 class="modal-title" id="modalTitle">Memuat...</h2>
-            <div class="modal-meta" id="modalMeta"></div>
-            <div class="modal-genres" id="modalGenres"></div>
-            <p class="modal-synopsis" id="modalSynopsis"></p>
-            <div class="modal-actions">
-              <a href="#" target="_blank" rel="noopener noreferrer" class="btn-watch" id="modalWatchLink">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                <span id="modalWatchText">TONTON SEKARANG</span>
-              </a>
-              <button type="button" class="btn-addlist" id="modalListBtn">
-                <span class="btn-plus">+</span>
-                <span>ADD LIST</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <div class="modal-credits" id="modalCredits"></div>
-
-        <!-- Seasons & Episodes -->
-        <div class="episodes-section hidden" id="modalEpisodesSection">
-          <div class="episodes-header">
-            <h3>Daftar Episode</h3>
-            <select class="filter-select" id="modalSeasonSelect" aria-label="Pilih Season"></select>
-          </div>
-          <p class="episodes-hint">Klik nomor episode untuk langsung membuka halaman tonton tanpa login.</p>
-          <div class="episodes-grid" id="modalEpisodesGrid"></div>
-        </div>
-
-        <!-- Related Titles -->
-        <div class="related-section hidden" id="modalRelatedSection">
-          <h3>Rekomendasi Serupa</h3>
-          <div class="poster-row compact" id="modalRelatedRow"></div>
-        </div>
-      </div>
+      <pre id="output">Klik "Send GET Request" atau tombol "Try" pada endpoint di bawah...</pre>
     </div>
+
+    <h2 class="section-title">Public Endpoints (No Auth Required)</h2>
+    <div class="grid" id="endpointsGrid"></div>
+
+    <footer>
+      <strong>Rate Limit:</strong> 120 requests / menit per IP &bull; <strong>Scope:</strong> Metadata katalog, poster, sinopsis, dan tautan referensi saja (tidak menghosting atau mendistribusikan file video berhak cipta).
+    </footer>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer-grid">
-      <div>
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="#hero">Beranda</a></li>
-          <li><a href="#trends">Trends Now</a></li>
-          <li><a href="#catalog" data-footer-tab="series">Drama & Series</a></li>
-          <li><a href="#catalog" data-footer-tab="movies">Movies</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Categories</h4>
-        <ul>
-          <li><a href="#catalog" data-footer-tab="ongoing">Ongoing Series</a></li>
-          <li><a href="#catalog" data-footer-tab="completed">Completed Series</a></li>
-          <li><a href="#catalog" data-footer-genre="action">Action</a></li>
-          <li><a href="#catalog" data-footer-genre="romance">Romance</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Quick Access</h4>
-        <ul>
-          <li><a href="#mylist">My List (Tanpa Login)</a></li>
-          <li><a href="/api/v1/health" target="_blank" rel="noopener noreferrer">API Health</a></li>
-          <li><a href="/api/v1/home" target="_blank" rel="noopener noreferrer">REST API v1</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="brand footer-brand">NONTONDRAMA</div>
-        <p class="footer-note">Platform katalog film & serial drama tanpa login. Data disinkronkan secara otomatis melalui NontonDrama REST API.</p>
-        <p class="footer-copy">© 2026 NontonDrama. Metadata catalog only.</p>
-      </div>
-    </div>
-  </footer>
+  <script>
+    const ENDPOINTS = [
+      { path: '/api/v1/home?limit=6', desc: 'Section homepage: featured, latest_movies, latest_series, popular, recommendations, ongoing, completed.' },
+      { path: '/api/v1/movies?page=1&limit=10&year=2026', desc: 'Katalog film dengan filter year, genre, country, sort (latest|rating|year|title), order.' },
+      { path: '/api/v1/series?page=1&limit=10&status=ongoing', desc: 'Katalog serial drama dengan filter status, genre, country, year, sort, order.' },
+      { path: '/api/v1/latest?page=1&limit=10', desc: 'Konten terbaru gabungan (opsional ?type=movie|series).' },
+      { path: '/api/v1/popular?page=1&limit=10', desc: 'Konten terpopuler (opsional ?type=movie|series).' },
+      { path: '/api/v1/recommendations?page=1&limit=10', desc: 'Konten rekomendasi pilihan.' },
+      { path: '/api/v1/ongoing?page=1&limit=10', desc: 'Serial drama yang sedang tayang (ongoing).' },
+      { path: '/api/v1/completed?page=1&limit=10', desc: 'Serial drama yang sudah tamat (completed).' },
+      { path: '/api/v1/search?q=loki&page=1&limit=10', desc: 'Pencarian judul partial & case-insensitive (?q= wajib).' },
+      { path: '/api/v1/genres', desc: 'Daftar semua genre. Gunakan /api/v1/genres/:slug untuk filter.' },
+      { path: '/api/v1/countries', desc: 'Daftar semua negara. Gunakan /api/v1/countries/:slug untuk filter.' },
+      { path: '/api/v1/years', desc: 'Daftar tahun rilis beserta jumlah judul. Gunakan /api/v1/years/:year.' },
+      { path: '/api/v1/detail/loki-2021', desc: 'Metadata lengkap: sinopsis, sutradara, cast, negara, related, dan seasons.' },
+      { path: '/api/v1/seasons/loki-2021', desc: 'Daftar seluruh season untuk sebuah serial.' },
+      { path: '/api/v1/episodes/loki-2021?season=1', desc: 'Daftar metadata episode per season (paginated).' },
+      { path: '/api/v1/health', desc: 'Status kesehatan API, koneksi database, cache, dan sinkronisasi terakhir.' }
+    ];
 
-  <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+    const out = document.getElementById('output');
+    const input = document.getElementById('reqPath');
 
-  <script type="module" src="/app.js"></script>
+    async function runRequest(p) {
+      input.value = p;
+      out.textContent = 'Loading ' + p + ' ...';
+      const t0 = performance.now();
+      try {
+        const res = await fetch(p);
+        const text = await res.text();
+        const ms = Math.round(performance.now() - t0);
+        try {
+          out.textContent = '// HTTP ' + res.status + ' (' + ms + ' ms)\n' + JSON.stringify(JSON.parse(text), null, 2);
+        } catch {
+          out.textContent = '// HTTP ' + res.status + ' (' + ms + ' ms)\n' + text;
+        }
+      } catch (e) {
+        out.textContent = 'Request error: ' + e.message;
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', () => runRequest(input.value.trim()));
+    const grid = document.getElementById('endpointsGrid');
+    ENDPOINTS.forEach((ep) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = '<div class="ep"><span class="method">GET</span><code>' + ep.path.split('?')[0] + '</code></div>'
+        + '<p class="desc">' + ep.desc + '</p>'
+        + '<button class="try-btn" type="button">Try Endpoint</button>';
+      div.querySelector('.try-btn').addEventListener('click', () => {
+        runRequest(ep.path);
+        window.scrollTo({ top: 180, behavior: 'smooth' });
+      });
+      grid.appendChild(div);
+    });
+  </script>
 </body>
 </html>
